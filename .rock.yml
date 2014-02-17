@@ -1,0 +1,9 @@
+runtime: perl516
+test: exec rock test_unit
+test_unit: |
+  if [[ -n "${ROCK_ARGS}" ]]; then
+    exec prove -l t/*_${ROCK_ARGS}.t
+  else
+    exec prove -l t/
+  fi
+test_all: exec prove -l -r t
