@@ -35,7 +35,7 @@ our $response_code = 200;
 my $render_curl = Mock::WWW::Curl::Easy->new();
 
 subtest "basic success call" => sub {
-  plan tests => 3;
+  plan tests => 4;
 
   local $perform_retcode = 0;
   local $response_code   = 200;
@@ -48,4 +48,6 @@ subtest "basic success call" => sub {
   isa_ok $test->curl, 'Mock::WWW::Curl::Easy';
 
   is $test->render( '/foo/path', { foo => 'bar' } ), 'foo';
+
+  is $test, $class->new( service_url => 'http://localhost:1234' ), 'verify we have a singleton';
 }

@@ -14,6 +14,13 @@ has curl        => ( required => 1, is => 'ro', default => sub {
 
 has error_handler => ( is => 'rw' );
 
+around 'new' => sub {
+  my ($method, $class, %args) = @_;
+
+  no strict 'refs';
+  return ${$class . '::_singleton'} ||= $class->$method(%args);
+};
+
 sub render {
   my ($self, $path, $data) = @_;
 
