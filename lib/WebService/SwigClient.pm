@@ -1,6 +1,8 @@
 package WebService::SwigClient;
 use Moo;
 
+our $VERSION = '0.001';
+
 use JSON::XS qw(encode_json);
 use WWW::Curl::Easy;
 
