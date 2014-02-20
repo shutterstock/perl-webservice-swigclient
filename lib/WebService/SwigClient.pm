@@ -14,11 +14,10 @@ has curl        => ( required => 1, is => 'ro', default => sub {
 
 has error_handler => ( is => 'rw' );
 
-around 'new' => sub {
-  my ($method, $class, %args) = @_;
-
+sub instance {
+  my ($class, %args) = @_;
   no strict 'refs';
-  return ${$class . '::_singleton'} ||= $class->$method(%args);
+  return ${$class . '::_singleton'} ||= $class->new(%args);
 };
 
 sub render {
@@ -51,6 +50,25 @@ sub render {
       $self->error_handler->(join " ",("Swig service render error: $retcode", $curl->strerror($retcode), $curl->errbuf));
     }
     return ();
+  }
+}
+
+sub healthcheck {
+  my ($self) = @_;
+  #use local curl here to make sure we do not send post requests
+  my $curl = __PACKAGE__->new(service_url => $self->service_url)->curl;
+  $curl->setopt(CURLOPT_URL, "${\$self->service_url}/healthcheck");
+  my $response_body;
+  $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+  my $retcode = $curl->perform;
+  if ($retcode == 0) {
+    utf8::decode($response_body);
+    return $response_body;
+  } else {
+    if ( $self->error_handler ) {
+      $self->error_handler->(join " ", ("An error happened: $retcode", $curl->strerror($retcode), $curl->errbuf))
+    }
+    return 'NO';
   }
 }
 
