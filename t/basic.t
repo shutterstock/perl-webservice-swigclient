@@ -67,13 +67,14 @@ subtest "error handler calls" => sub {
     },
   );
 
-  plan tests => @tests * 2;
+  plan tests => @tests * 3;
   for (@tests) {
     local $perform_retcode = $_->{perform_retcode};
     local $response_code   = $_->{response_code};
 
     my $test_error_handler = sub {
       is shift, $_->{error_expectation}, 'test handler is called with correct error message';
+      isa_ok shift, 'Mock::WWW::Curl::Easy', 'hey neat we get a curl object to do some more curling!';
     };
 
     my $test;

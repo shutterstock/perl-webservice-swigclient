@@ -47,7 +47,7 @@ sub render {
   if ($retcode == 0) {
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
     if($response_code != 200 && $self->error_handler ) {
-      $self->error_handler->("Swig service render error: $response_code");
+      $self->error_handler->("Swig service render error: $response_code", $curl);
       return ();
     }
     if ( $response_body) {
