@@ -20,7 +20,7 @@ my $error_handler = sub { my ($error, $curl) = @_; warn $error };
 
 my $client = WebService::SwigClient->new(api_key => $api_key, service_url => $service_url, error_handler => $error_handler);
 if ( $command && $command eq 'render') {
-  print $client->render($template, { content => JSON::XS::decode_json($json) }),"\n";
+  print $client->render($template, JSON::XS::decode_json($json)),"\n";
 } elsif ( $command && $command eq 'translate' ) {
   print $client->create_translations({ content => JSON::XS::decode_json($json) }),"\n";
 } elsif ( $command && $command eq 'create' ) {
