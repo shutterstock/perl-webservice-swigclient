@@ -116,6 +116,12 @@ WebService::SwigClient - A client for hitting swig.io
 
   $client->render('foo.html', {});
 
+=head1 LICENSE
+
+Copyright (c) 2014 Nikolay Martynov, Logan Bell, Belden Lyman and Shutterstock Inc (http://shutterstock.com).  All rights reserved.  This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
+
 
 =cut
 
