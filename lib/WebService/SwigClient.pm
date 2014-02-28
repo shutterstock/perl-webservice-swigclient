@@ -17,11 +17,13 @@ has curl        => ( required => 1, is => 'ro', default => sub {
 
 has error_handler => ( is => 'rw' );
 
-sub instance {
-  my ($class, %args) = @_;
-  no strict 'refs';
-  return ${$class . '::_singleton'} ||= $class->new(%args);
-};
+{
+  my $singleton;
+  sub instance {
+    my ($class, %args) = @_;
+    return $singleton ||= $class->new(%args);
+  }
+}
 
 sub render {
   my ($self, $path, $data) = @_;
@@ -54,7 +56,10 @@ sub render {
     return $response_body;
   } else {
     if ( $self->error_handler ) {
-      $self->error_handler->(join " ",("Swig service render error: $retcode", $curl->strerror($retcode), $curl->errbuf));
+      $self->error_handler->(
+        join(" ", "Swig service render error: $retcode", $curl->strerror($retcode), $curl->errbuf),
+        $curl,
+      );
     }
     return ();
   }
@@ -73,7 +78,10 @@ sub healthcheck {
     return $response_body;
   } else {
     if ( $self->error_handler ) {
-      $self->error_handler->(join " ", ("An error happened: $retcode", $curl->strerror($retcode), $curl->errbuf))
+      $self->error_handler->(
+        join(" ", "An error happened: $retcode", $curl->strerror($retcode), $curl->errbuf),
+        $curl,
+      );
     }
     return 'NO';
   }
@@ -91,7 +99,7 @@ WebService::SwigClient - A client for hitting swig.io
     api_key       => $api_key,
     service_url   => $service_url,
     error_handler => sub {
-      my $error = shift;
+      my ($error, $curl_object) = @_;
       warn $error;
     },
   );

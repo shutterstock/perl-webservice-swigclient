@@ -7,20 +7,15 @@ use Getopt::Long;
 use JSON::XS;
 use WebService::SwigClient; 
 
-my $api_key;
-my $template;
-my $command     = 'render';
-my $service_url = 'http://swig.io';
-my $json        = '{}';
 GetOptions (
-  "api_key=s"     => \$api_key,
-  "template=s"    => \$template,
-  "command=s"     => \$command,
-  "service_url=s" => \$service_url,
-  "json=s"        => \$json,
+  "api_key=s"     => \(my $api_key),
+  "template=s"    => \(my $template),
+  "command=s"     => \(my $command = 'render'),
+  "service_url=s" => \(my $service_url = 'http://swig.io'),
+  "json=s"        => \(my $json = '{}'),
 ) or die("Error in command line arguments\n");
 
-my $error_handler = sub { warn shift };
+my $error_handler = sub { my ($error, $curl) = @_; warn $error };
 
 my $client = WebService::SwigClient->new(api_key => $api_key, service_url => $service_url, error_handler => $error_handler);
 if ( $command && $command eq 'render') {
@@ -30,6 +25,6 @@ if ( $command && $command eq 'render') {
 print<<EOF;
 usage:
 
-swig_client --api_key <api_key> --template foo.html --command render
+swig_client --api_key <api_key> --template foo.html
 EOF
 }
