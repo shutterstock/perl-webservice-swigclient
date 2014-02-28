@@ -6,6 +6,7 @@ our $VERSION = '0.001';
 use JSON::XS qw(encode_json);
 use WWW::Curl::Easy;
 
+has api_key     => ( required => 0, is => 'ro' );
 has service_url => ( required => 1, is => 'ro' );
 has curl        => ( required => 1, is => 'ro', default => sub {
   my $render_curl = WWW::Curl::Easy->new;
@@ -28,7 +29,11 @@ sub render {
   my $body = encode_json($data);
   my $curl = $self->curl;
 
-  $curl->setopt(CURLOPT_URL, "${\$self->service_url}/template/$path");
+  my $url = $self->api_key ?
+    join('/',($self->service_url, $self->api_key, $path)) :
+    join('/',($self->service_url, 'template', $path));
+
+  $curl->setopt(CURLOPT_URL, $url);
   {
     use bytes;
     $curl->setopt(CURLOPT_POSTFIELDSIZE, length($body));
@@ -73,5 +78,27 @@ sub healthcheck {
     return 'NO';
   }
 }
+
+=head1 NAME
+
+WebService::SwigClient - A client for hitting swig.io
+
+=head1 SYNOPSIS
+
+  use WebService::SwigClient; 
+
+  my $client = WebService::SwigClient->new(
+    api_key       => $api_key,
+    service_url   => $service_url,
+    error_handler => sub {
+      my $error = shift;
+      warn $error;
+    },
+  );
+
+  $client->render('foo.html', {});
+
+
+=cut
 
 1;

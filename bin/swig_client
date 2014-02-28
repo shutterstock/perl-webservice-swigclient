@@ -1,0 +1,35 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use JSON::XS;
+use WebService::SwigClient; 
+
+my $api_key;
+my $template;
+my $command     = 'render';
+my $service_url = 'http://swig.io';
+my $json        = '{}';
+GetOptions (
+  "api_key=s"     => \$api_key,
+  "template=s"    => \$template,
+  "command=s"     => \$command,
+  "service_url=s" => \$service_url,
+  "json=s"        => \$json,
+) or die("Error in command line arguments\n");
+
+my $error_handler = sub { warn shift };
+
+my $client = WebService::SwigClient->new(api_key => $api_key, service_url => $service_url, error_handler => $error_handler);
+if ( $command && $command eq 'render') {
+  $client->render($template, JSON::XS::decode_json($json));
+} else {
+
+print<<EOF;
+usage:
+
+swig_client --api_key <api_key> --template foo.html --command render
+EOF
+}
