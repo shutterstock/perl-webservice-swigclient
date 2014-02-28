@@ -5,6 +5,7 @@ use warnings;
 
 use Getopt::Long;
 use JSON::XS;
+use File::Slurp;
 use WebService::SwigClient; 
 
 GetOptions (
@@ -19,7 +20,16 @@ my $error_handler = sub { my ($error, $curl) = @_; warn $error };
 
 my $client = WebService::SwigClient->new(api_key => $api_key, service_url => $service_url, error_handler => $error_handler);
 if ( $command && $command eq 'render') {
-  $client->render($template, JSON::XS::decode_json($json));
+  print $client->render($template, { content => JSON::XS::decode_json($json) }),"\n";
+} elsif ( $command && $command eq 'translate' ) {
+  print $client->create_translations({ content => JSON::XS::decode_json($json) }),"\n";
+} elsif ( $command && $command eq 'create' ) {
+  if ( -e $template ) {
+    my $data = read_file($template);
+    print $client->create_template($template, { content => $data } ),"\n";
+  } else {
+    print "That template file appears to not exist!\n";
+  }
 } else {
 
 print<<EOF;

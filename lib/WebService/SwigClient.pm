@@ -29,8 +29,16 @@ sub render {
   my ($self, $path, $data) = @_;
 
   my $url = $self->api_key ?
-    join('/',($self->service_url, $self->api_key, $path)) :
+    join('/',($self->service_url, $self->api_key, $path, 'render')) :
     join('/',($self->service_url, 'template', $path));
+
+  return $self->post($url, encode_json($data));
+}
+
+sub create_template {
+  my ($self, $filename, $data) = @_;
+
+  my $url = join('/',($self->service_url, $self->api_key, $filename)); 
 
   return $self->post($url, encode_json($data));
 }
@@ -97,6 +105,8 @@ sub healthcheck {
   }
 }
 
+1;
+
 =head1 NAME
 
 WebService::SwigClient - A client for hitting swig.io
@@ -124,5 +134,3 @@ Copyright (c) 2014 Nikolay Martynov, Logan Bell, Belden Lyman and Shutterstock I
 
 
 =cut
-
-1;
