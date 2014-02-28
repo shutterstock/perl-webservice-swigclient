@@ -35,7 +35,7 @@ our $response_code = 200;
 my $render_curl = Mock::WWW::Curl::Easy->new();
 
 subtest "basic success call" => sub {
-  plan tests => 4;
+  plan tests => 6;
 
   local $perform_retcode = 0;
   local $response_code   = 200;
@@ -50,6 +50,9 @@ subtest "basic success call" => sub {
   is $test->render( '/foo/path', { foo => 'bar' } ), 'foo', 'render returns response body';
 
   is $class->instance(service_url => 'http://foo'), $class->instance(service_url => 'http://localhost:1234'), 'verify we have a singleton';
+
+  lives_ok { $test = $class->new( service_url => 'http://localhost:1234', api_key => 12345 ) } 'we live!';
+  is $test->create_translations( { foo => 'bar' } ), 'foo', 'render returns response body';
 };
 
 subtest "error handler calls" => sub {

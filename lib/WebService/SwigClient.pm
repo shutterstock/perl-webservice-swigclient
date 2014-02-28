@@ -6,7 +6,7 @@ our $VERSION = '0.001';
 use JSON::XS qw(encode_json);
 use WWW::Curl::Easy;
 
-has api_key     => ( required => 0, is => 'ro' );
+has api_key     => ( required => 0, is => 'rw' );
 has service_url => ( required => 1, is => 'ro' );
 has curl        => ( required => 1, is => 'ro', default => sub {
   my $render_curl = WWW::Curl::Easy->new;
@@ -28,13 +28,23 @@ has error_handler => ( is => 'rw' );
 sub render {
   my ($self, $path, $data) = @_;
 
-  my $body = encode_json($data);
-  my $curl = $self->curl;
-
   my $url = $self->api_key ?
     join('/',($self->service_url, $self->api_key, $path)) :
     join('/',($self->service_url, 'template', $path));
 
+  return $self->post($url, encode_json($data));
+}
+
+sub create_translations {
+  my ($self, $data) = @_;
+
+  my $url = join('/',($self->service_url, $self->api_key,'misc','translation'));
+  return $self->post($url, encode_json($data));
+}
+
+sub post {
+  my ($self, $url, $body) = @_;
+  my $curl = $self->curl;
   $curl->setopt(CURLOPT_URL, $url);
   {
     use bytes;
@@ -46,7 +56,7 @@ sub render {
   my $retcode = $curl->perform;
   if ($retcode == 0) {
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-    if($response_code != 200 && $self->error_handler ) {
+    if($response_code != 200 && $response_code != 201 && $self->error_handler ) {
       $self->error_handler->("Swig service render error: $response_code", $curl);
       return ();
     }
