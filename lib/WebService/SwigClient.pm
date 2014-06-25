@@ -109,7 +109,7 @@ sub healthcheck {
 
 =head1 NAME
 
-WebService::SwigClient - A client for hitting swig.io
+WebService::SwigClient - A client for connecting to a swig service
 
 =head1 SYNOPSIS
 
